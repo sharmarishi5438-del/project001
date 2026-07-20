@@ -1,0 +1,156 @@
+/* ============================================
+   The Living Memory Tree — layered reveal system
+   ============================================
+   Two pixel-matched images (line-art on top, color
+   underneath) stacked exactly. Each chapter node
+   reveals a crop of the color image at its position
+   when visited. This version replaces the old flat
+   opacity-crossfade with a real interaction language:
+   idle breathing (invites touch), an organic multi-blob
+   reveal shape (not a giveaway perfect circle), and a
+   tap sequence with anticipation + overshoot + follow-
+   through instead of a linear fade.
+*/
+
+#tree-wrap {
+  position: relative;
+  /* Both dimensions scale together by --tree-zoom, so the aspect ratio
+     (1774:887) is always preserved — zero distortion. The vertical
+     excess this creates is cropped evenly by #world's overflow-y:hidden
+     + centering below; at zoom 1.35 that crop stays safely within the
+     empty sky/ground margins (~13% top/bottom), well clear of every
+     chapter node (lowest at y≈23%, highest at y≈68%). */
+  height: calc(100dvh * var(--tree-zoom));
+  width: calc(100dvh * var(--tree-zoom) * 1774 / 887);
+  flex-shrink: 0;
+  animation: ambient-drift 22s ease-in-out infinite alternate;
+}
+
+/* The world should never look frozen, even before she touches anything —
+   a barely-perceptible breathing scale, not an obvious loop. */
+@keyframes ambient-drift {
+  0%   { transform: scale(1) translateY(0); }
+  100% { transform: scale(1.015) translateY(-0.4%); }
+}
+
+.tree-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  display: block;
+  pointer-events: none;
+  /* The line-art asset itself is plain black-on-white with zero night-sky
+     atmosphere — inverting it (verified: it's essentially pure grayscale,
+     so this is a clean, safe transform with no odd color shifts) turns it
+     into glowing white/silver linework on black, reading as a constellation
+     map rather than a blank coloring-book page. */
+  filter: invert(1);
+}
+
+#tree-nodes {
+  position: absolute;
+  inset: 0;
+}
+
+/* --- Idle state: faint breathing glow, invites touch before anything happens --- */
+.tree-node-idle {
+  position: absolute;
+  width: 9%;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(232, 205, 138, 0.4) 0%, rgba(232, 205, 138, 0) 70%);
+  animation: idle-breathe 4s ease-in-out infinite;
+}
+@keyframes idle-breathe {
+  0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(0.85); }
+  50%      { opacity: 0.7; transform: translate(-50%, -50%) scale(1.08); }
+}
+
+/* --- The bloom itself: organic mask shape is set per-node inline via JS
+   (tree.js), not here — see buildOrganicMask(). This keeps each node's
+   silhouette irregular instead of every single one being an identical
+   perfect circle, which is a big part of what read as "cheap." --- */
+.tree-node {
+  position: absolute;
+  width: 7.5%;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background-repeat: no-repeat;
+  opacity: 0;
+  filter: brightness(1);
+}
+
+/* Anticipation: the instant-feedback press, before the real animation starts */
+.tree-node-hit.pressed {
+  transform: translate(-50%, -50%) scale(0.9);
+  transition: transform 90ms ease-out;
+}
+
+/* Action + overshoot + settle, replacing the old linear opacity fade.
+   The cubic-bezier overshoots past 1 then eases back — this single curve
+   is most of the difference between "cheap fade" and "something alive." */
+.tree-node.igniting {
+  animation: node-ignite 700ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+@keyframes node-ignite {
+  0%   { opacity: 0;    transform: translate(-50%, -50%) scale(0.25); filter: brightness(2.2); }
+  45%  { opacity: 1;    transform: translate(-50%, -50%) scale(1.22); filter: brightness(1.6); }
+  75%  { opacity: 1;    transform: translate(-50%, -50%) scale(0.93); filter: brightness(1.05); }
+  100% { opacity: 1;    transform: translate(-50%, -50%) scale(1);    filter: brightness(1); }
+}
+
+/* Follow-through: once settled, a slow ambient pulse so a bloomed node
+   still feels alive rather than "finished and dead." */
+.tree-node.settled {
+  animation: bloomed-glow 5s ease-in-out infinite;
+}
+@keyframes bloomed-glow {
+  0%, 100% { filter: brightness(1); }
+  50%      { filter: brightness(1.12); }
+}
+
+/* Embers that drift outward from the tap point and fade — see tree.js
+   spawnParticles(). Positioned/animated per-particle via CSS custom
+   properties (--dx, --dy) set inline. */
+.spark-particle {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--soft-gold);
+  box-shadow: 0 0 8px 3px rgba(232, 205, 138, 0.85);
+  pointer-events: none;
+  animation: particle-drift 900ms ease-out forwards;
+}
+@keyframes particle-drift {
+  0%   { transform: translate(0, 0) scale(1);   opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0.25); opacity: 0; }
+}
+
+/* Tappable hit-area is larger than the visual bloom, easier to tap on a phone */
+.tree-node-hit {
+  position: absolute;
+  width: 13%;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: transparent;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+/* Easter egg hotspots (e.g. the swing) — subtler, don't gate progress */
+.easter-egg-hit {
+  position: absolute;
+  width: 9%;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: transparent;
+  cursor: pointer;
+}

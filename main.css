@@ -1,0 +1,118 @@
+/* ============================================
+   project0111 — Design Tokens & Base Styles
+   ============================================ */
+
+@font-face {
+  font-family: 'Gaegu';
+  src: url('Gaegu-Regular-subset.woff') format('woff');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Gaegu';
+  src: url('Gaegu-Bold-subset.woff') format('woff');
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Patrick Hand';
+  src: url('PatrickHand-Regular-subset.woff') format('woff');
+  font-weight: 400;
+  font-display: swap;
+}
+/* Caveat is not self-hosted yet (no local file provided) — using Google Fonts
+   CDN for now. Swap to a local @font-face here once a .ttf/.woff is provided,
+   matching the pattern above. */
+
+:root {
+  /* Palette — locked in master plan Section 3 */
+  --sky-blue: #A9C9E8;      /* primary accent — her favorite color */
+  --blush: #F3D6DA;         /* warmth/softness accents */
+  --lavender-mist: #D9CFEE; /* secondary accent */
+  --cream: #FDF8F2;         /* base background */
+  --soft-gold: #E8CD8A;     /* glow/lantern/bloom accent — use sparingly */
+  --ink-navy: #3E4A5C;      /* body text color */
+
+  /* Type */
+  --font-display: 'Caveat', cursive;
+  --font-body: 'Gaegu', cursive;
+  --font-accent: 'Patrick Hand', cursive;
+
+  /* Motion */
+  --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-slow: 1.4s;
+  --duration-medium: 0.6s;
+  --duration-fast: 0.25s;
+
+  /* How much wider/taller than the viewport the tree renders — this is
+     what creates real horizontal scroll-through-sections instead of
+     seeing the whole tree flattened onto one screen. 1.35 is chosen
+     deliberately: it crops only the empty sky/ground margins, not any
+     actual chapter content (see tree.css for the math). Raise for a
+     more zoomed-in feel, but check node visibility if you do. */
+  --tree-zoom: 1.35;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--ink-navy);
+  font-family: var(--font-body);
+  color: var(--ink-navy);
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+
+h1, h2, h3, .display-text {
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+
+.accent-text {
+  font-family: var(--font-accent);
+}
+
+button {
+  font-family: var(--font-body);
+  border: none;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Utility: dim/unbloomed state used across chapter nodes, easter eggs, etc. */
+.dim {
+  filter: grayscale(0.6) brightness(0.6);
+  opacity: 0.55;
+  transition: filter var(--duration-medium) var(--ease-soft),
+              opacity var(--duration-medium) var(--ease-soft),
+              transform var(--duration-medium) var(--ease-soft);
+}
+
+.bloomed {
+  filter: none;
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+/* Mute/volume control — required per Audio Plan (Section 5), always visible */
+#audio-toggle {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 1000;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(62, 74, 92, 0.35);
+  color: var(--cream);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}

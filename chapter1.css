@@ -1,0 +1,115 @@
+/* ============================================
+   Chapter 1 — Opening Gate
+   ============================================ */
+
+#scene {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, #1a2436 0%, var(--ink-navy) 55%, #2b2140 100%);
+  overflow: hidden;
+}
+
+/* --- Starfield: independent, non-synchronized stars per motion principle (4a) --- */
+.star {
+  position: absolute;
+  border-radius: 50%;
+  background: var(--cream);
+  animation: twinkle linear infinite;
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 1; }
+}
+
+/* --- Rotate-device prompt (portrait entry, per Section 4a opening sequence) --- */
+#rotate-prompt {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: var(--cream);
+  text-align: center;
+  padding: 24px;
+  z-index: 10;
+  transition: opacity var(--duration-slow) var(--ease-soft);
+}
+#rotate-prompt .icon {
+  font-size: 2.5rem;
+  animation: gentle-rotate 2.4s ease-in-out infinite;
+}
+@keyframes gentle-rotate {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(90deg); }
+}
+#rotate-prompt p {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  max-width: 280px;
+  margin: 0;
+}
+
+/* #world is always visually "ready" underneath now — the reveal itself
+   is handled entirely by #reveal-hole (below), so the whole experience
+   (opening AND every tap after it) speaks the same visual language:
+   light expanding from a point, not things fading in and out. */
+#world {
+  position: absolute;
+  inset: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+  display: flex;
+  align-items: center;
+  z-index: 2;
+}
+
+/* --- The big reveal: a small point of light expands to dispel the
+   darkness, once, the first time she reaches landscape. Same idea as
+   each node's ignite-on-tap, just at the scale of the whole scene —
+   this is what makes the opening feel authored rather than assembled.
+   Starts fully OPEN (invisible/non-blocking) so it never covers the
+   rotate-prompt in portrait; JS snaps it closed then re-opens it right
+   as she rotates, which is what creates the "igniting" motion. */
+#reveal-hole {
+  position: absolute;
+  left: 50%;
+  top: 60%;
+  width: 250vmax;
+  height: 250vmax;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 9999px var(--ink-navy);
+  transition: width 1.8s cubic-bezier(0.22, 1, 0.36, 1),
+              height 1.8s cubic-bezier(0.22, 1, 0.36, 1);
+  z-index: 15;
+  pointer-events: none;
+}
+#reveal-hole.closed {
+  width: 10px;
+  height: 10px;
+}
+
+#opening-line {
+  position: fixed;
+  bottom: 6%;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--cream);
+  font-family: var(--font-accent);
+  font-size: 1.1rem;
+  text-align: center;
+  opacity: 0;
+  transition: opacity var(--duration-slow) var(--ease-soft) 1s;
+  width: 80%;
+  max-width: 400px;
+  pointer-events: none;
+  z-index: 20;
+}
+#opening-line.shown {
+  opacity: 0.85;
+}

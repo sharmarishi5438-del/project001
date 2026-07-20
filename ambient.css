@@ -1,0 +1,71 @@
+/* ============================================
+   Ambient life — foliage sway, drifting fireflies,
+   occasional falling petals. Purely decorative, not
+   tied to chapter/gating state — this is what makes
+   the world feel alive from the very first moment,
+   not just reactive to taps.
+   ============================================ */
+
+/* --- Foliage sway: small crops of the SAME base image, layered
+   exactly on top of themselves and given a tiny independent rotation.
+   The pixels underneath already match, so there's no visible seam —
+   it just reads as that little leaf cluster swaying. --- */
+.foliage-sway {
+  position: absolute;
+  border-radius: 50%;
+  background-repeat: no-repeat;
+  pointer-events: none;
+  transform-origin: 50% 80%;
+  animation-name: foliage-sway-move;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  mask-image: radial-gradient(circle, black 40%, transparent 75%);
+  -webkit-mask-image: radial-gradient(circle, black 40%, transparent 75%);
+  /* Must match the base .tree-layer inversion (tree.css) exactly, or these
+     patches show as mismatched bright splotches against the dark tree. */
+  filter: invert(1);
+}
+@keyframes foliage-sway-move {
+  0%, 100% { transform: translate(-50%, -50%) rotate(-1.4deg); }
+  50%      { transform: translate(-50%, -50%) rotate(1.6deg); }
+}
+
+/* --- Fireflies: small drifting glow motes, independent of the art
+   entirely — pure ambient atmosphere, drifting in a slow loose loop. --- */
+.firefly {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--soft-gold);
+  box-shadow: 0 0 6px 2px rgba(232, 205, 138, 0.75);
+  pointer-events: none;
+  opacity: 0;
+  animation-name: firefly-drift;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+@keyframes firefly-drift {
+  0%   { transform: translate(0, 0); opacity: 0; }
+  10%  { opacity: 0.85; }
+  50%  { transform: translate(var(--fx, 30px), var(--fy, -40px)); opacity: 0.55; }
+  90%  { opacity: 0.85; }
+  100% { transform: translate(0, 0); opacity: 0; }
+}
+
+/* --- Occasional falling petal: spawned periodically via JS, drifts
+   down with a gentle rotation, fades, removes itself. --- */
+.falling-leaf {
+  position: absolute;
+  width: 7px;
+  height: 10px;
+  border-radius: 60% 60% 60% 5%;
+  background: var(--lavender-mist);
+  opacity: 0.75;
+  pointer-events: none;
+  animation: leaf-fall 6s ease-in forwards;
+}
+@keyframes leaf-fall {
+  0%   { transform: translate(0, 0) rotate(0deg); opacity: 0.8; }
+  100% { transform: translate(var(--lx, 30px), 140px) rotate(200deg); opacity: 0; }
+}
